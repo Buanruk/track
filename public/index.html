@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Goods Tracker | ระบบบันทึกและติดตามสินค้าเข้า-ออก</title>
+  
+  <!-- Apple & Modern Thai Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Lucide Icons (CDN fallback) -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Style CSS -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Antigravity Interactive Particles Background Canvas -->
+  <canvas id="antigravityCanvas"></canvas>
+
+  <div class="apple-container">
+
+    <!-- Top Header Navigation -->
+    <header class="apple-header">
+      <div class="apple-brand">
+        <!-- Permanent Inline SVG Logo (Will never disappear on refresh) -->
+        <div class="apple-logo-wrap" title="Goods Tracker Logo">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--apple-blue);">
+            <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/>
+            <path d="m3.3 7 8.7 5 8.7-5"/>
+            <path d="M12 22V12"/>
+          </svg>
+        </div>
+        <div class="apple-brand-text">
+          <h1>
+            Goods Tracker
+            <span class="apple-badge-excel">EXCEL DATABASE</span>
+          </h1>
+          <p class="apple-brand-subtitle">ระบบบันทึกและติดตามสถานะสินค้าเข้า-ออก พร้อมแจ้งเตือนกำหนดเวลา</p>
+        </div>
+      </div>
+
+      <div class="apple-header-actions">
+        <!-- Logged-in User Display -->
+        <div id="userProfileBar" class="user-pill" style="display: none;">
+          <div class="user-pill-avatar" id="userAvatarText">P</div>
+          <span id="userNameDisplay">Peerapat Buasa</span>
+          <button type="button" id="btnLogout" class="apple-btn-today" style="margin-left: 0.25rem;" title="ออกจากระบบ">
+            <i data-lucide="log-out" style="width: 12px; height: 12px;"></i>
+            <span>ออก</span>
+          </button>
+        </div>
+
+        <!-- Download Excel Button -->
+        <a href="/api/download-excel" class="apple-btn apple-btn-secondary" title="ดาวน์โหลดไฟล์ Excel (.csv)">
+          <i data-lucide="sheet" style="width: 16px; height: 16px; color: #1e7e34;"></i>
+          <span>ดาวน์โหลด Excel</span>
+        </a>
+      </div>
+    </header>
+
+    <!-- Stats Summary Bar -->
+    <section class="stats-pills-bar">
+      <div class="stat-pill-item">
+        <div class="stat-pill-label">รายการทั้งหมด</div>
+        <div class="stat-pill-val" id="statTotal">0</div>
+      </div>
+      <div class="stat-pill-item">
+        <div class="stat-pill-label" style="color: var(--apple-blue);">📥 รับเข้า (Inbound)</div>
+        <div class="stat-pill-val" id="statInbound">0</div>
+      </div>
+      <div class="stat-pill-item">
+        <div class="stat-pill-label" style="color: var(--apple-orange-text);">📤 ส่งออก (Outbound)</div>
+        <div class="stat-pill-val" id="statOutbound">0</div>
+      </div>
+      <div class="stat-pill-item">
+        <div class="stat-pill-label" style="color: var(--apple-red);">🚨 ล่าช้า / เร่งด่วน</div>
+        <div class="stat-pill-val" id="statUrgent" style="color: var(--apple-red);">0</div>
+      </div>
+    </section>
+
+    <!-- Main Input Form Card -->
+    <main class="apple-card">
+      <div class="apple-card-title">
+        <span>บันทึกรายการสินค้า</span>
+        <span style="font-size: 0.8rem; font-weight: normal; color: var(--apple-text-secondary);">
+          ข้อมูลจะถูกจัดเก็บลงไฟล์ Excel ทันที
+        </span>
+      </div>
+
+      <!-- Segmented Control for Transaction Type -->
+      <div class="apple-segmented-control" id="typeSegmentedControl">
+        <button type="button" class="apple-segmented-btn active" data-type="รับเข้า">
+          <i data-lucide="arrow-down-left" style="width: 16px; height: 16px;"></i>
+          <span>📥 รับเข้า (Inbound จาก Vendor)</span>
+        </button>
+        <button type="button" class="apple-segmented-btn" data-type="ส่งออก">
+          <i data-lucide="arrow-up-right" style="width: 16px; height: 16px;"></i>
+          <span>📤 ส่งออก (Outbound ไปให้ Vendor)</span>
+        </button>
+      </div>
+
+      <form id="recordForm">
+        <div class="form-grid">
+
+          <!-- หมายเลข PO -->
+          <div class="apple-form-group">
+            <div class="apple-label-wrap">
+              <label class="apple-label" for="inputPoNumber">หมายเลข PO (PO Number)</label>
+            </div>
+            <input 
+              type="text" 
+              id="inputPoNumber" 
+              class="apple-input" 
+              placeholder="เช่น A9999A หรือ PO-2026-001" 
+              style="text-transform: uppercase;"
+              autocomplete="off"
+            >
+          </div>
+
+          <!-- ชื่อ Vendor -->
+          <div class="apple-form-group">
+            <div class="apple-label-wrap">
+              <label class="apple-label" for="inputVendor">ชื่อ Vendor / คู่ค้า</label>
+            </div>
+            <input 
+              type="text" 
+              id="inputVendor" 
+              class="apple-input" 
+              placeholder="เช่น บจก. สยาม โลจิสติกส์ หรือ Apex Intertrade" 
+              required
+              autocomplete="off"
+            >
+          </div>
+
+          <!-- ชื่อสินค้า (Item Name) -->
+          <div class="apple-form-group form-full">
+            <div class="apple-label-wrap">
+              <label class="apple-label" for="inputItemName">ชื่อสินค้า / สิ่งของที่ส่ง</label>
+            </div>
+            <input 
+              type="text" 
+              id="inputItemName" 
+              class="apple-input" 
+              placeholder="ระบุชื่อของที่มาส่ง หรือของที่เราส่งออกไปให้ Vendor" 
+              required
+              autocomplete="off"
+            >
+          </div>
+
+          <!-- จำนวน -->
+          <div class="apple-form-group">
+            <div class="apple-label-wrap">
+              <label class="apple-label" for="inputQuantity">จำนวน</label>
+            </div>
+            <input 
+              type="number" 
+              id="inputQuantity" 
+              class="apple-input" 
+              placeholder="เช่น 50 หรือ 1500" 
+              min="0.01" 
+              step="any" 
+              required
+            >
+          </div>
+
+          <!-- หน่วย -->
+          <div class="apple-form-group">
+            <div class="apple-label-wrap">
+              <label class="apple-label" for="inputUnit">หน่วยนับ</label>
+            </div>
+            <input 
+              type="text" 
+              id="inputUnit" 
+              class="apple-input" 
+              placeholder="เช่น ชิ้น, กล่อง, ลัง, พาเลท" 
+              required
+            >
+            <!-- Quick Unit Chips -->
+            <div class="unit-chips-wrap">
+              <button type="button" class="unit-chip" data-unit="ชิ้น">ชิ้น</button>
+              <button type="button" class="unit-chip" data-unit="กล่อง">กล่อง</button>
+              <button type="button" class="unit-chip" data-unit="ลัง">ลัง</button>
+              <button type="button" class="unit-chip" data-unit="พาเลท">พาเลท</button>
+              <button type="button" class="unit-chip" data-unit="กก.">กก.</button>
+              <button type="button" class="unit-chip" data-unit="เครื่อง">เครื่อง</button>
+            </div>
+          </div>
+
+          <!-- วันที่และเวลาบันทึก -->
+          <div class="apple-form-group">
+            <div class="apple-label-wrap">
+              <label class="apple-label" for="inputDate">วันที่บันทึก</label>
+              <button type="button" id="btnFillToday" class="apple-btn-today" title="เติมวันที่วันนี้และเวลาปัจจุบัน">
+                <i data-lucide="zap" style="width: 12px; height: 12px;"></i>
+                <span>Today / ตอนนี้</span>
+              </button>
+            </div>
+            <input type="date" id="inputDate" class="apple-input" required>
+          </div>
+
+          <div class="apple-form-group">
+            <div class="apple-label-wrap">
+              <label class="apple-label" for="inputTime">เวลาบันทึก</label>
+            </div>
+            <input type="time" id="inputTime" class="apple-input" required>
+          </div>
+
+          <!-- วันที่และเวลาที่ Vendor เข้ามารับของ (สำหรับระบบ Alert) -->
+          <div class="apple-form-group form-full pickup-highlight-box">
+            <div class="apple-label-wrap" style="margin-bottom: 0.5rem;">
+              <label class="apple-label" style="color: var(--apple-orange-text); font-weight: 700; display: flex; align-items: center; gap: 0.35rem;">
+                <i data-lucide="clock" style="width: 15px; height: 15px;"></i>
+                <span>กำหนดวันและเวลาที่ Vendor เข้ามารับของ (สำหรับคำนวณ Alert เตือนล่วงหน้า)</span>
+              </label>
+              <div style="display: flex; gap: 0.3rem;">
+                <button type="button" class="apple-btn-today btnPickupPreset" data-hours="2">+2 ชม.</button>
+                <button type="button" class="apple-btn-today btnPickupPreset" data-hours="24">+24 ชม. (พรุ่งนี้)</button>
+                <button type="button" class="apple-btn-today btnPickupPreset" data-hours="72">+3 วัน</button>
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+              <div>
+                <label style="font-size: 0.78rem; color: var(--apple-text-secondary);">วันนัดรับของ:</label>
+                <input type="date" id="inputPickupDate" class="apple-input" style="margin-top: 0.2rem;" required>
+              </div>
+              <div>
+                <label style="font-size: 0.78rem; color: var(--apple-text-secondary);">เวลานัดรับของ:</label>
+                <input type="time" id="inputPickupTime" class="apple-input" style="margin-top: 0.2rem;" required>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="form-footer-action">
+          <button type="submit" id="btnSubmit" class="apple-btn apple-btn-primary">
+            <i data-lucide="plus-circle" style="width: 17px; height: 17px;"></i>
+            <span>บันทึกลง Excel</span>
+          </button>
+        </div>
+      </form>
+    </main>
+
+    <!-- Records History Section -->
+    <section class="records-section">
+      <div class="records-header">
+        <div class="records-title-group">
+          <h2>ประวัติรายการสินค้าและการแจ้งเตือน</h2>
+          <p id="recordsCountText">แสดงข้อมูลจากไฟล์ Excel</p>
+        </div>
+
+        <div class="records-filters">
+          <!-- Live Search -->
+          <div class="search-box">
+            <i data-lucide="search" class="search-icon-svg" style="width: 15px; height: 15px;"></i>
+            <input type="text" id="searchInput" placeholder="ค้นหา PO, Vendor, สินค้า...">
+          </div>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="apple-table">
+          <thead>
+            <tr>
+              <th style="width: 90px;">ประเภท</th>
+              <th style="width: 110px;">เลข PO</th>
+              <th>ชื่อ Vendor</th>
+              <th>ชื่อสินค้า (Item Name)</th>
+              <th style="width: 100px;">จำนวน</th>
+              <th style="width: 120px;">วันที่บันทึก</th>
+              <th style="width: 180px;">กำหนดเวลารับของ / แจ้งเตือน</th>
+              <th style="width: 120px; text-align: center;">สถานะงาน</th>
+              <th style="width: 50px; text-align: center;">ลบ</th>
+            </tr>
+          </thead>
+          <tbody id="recordsTableBody">
+            <!-- Populated via Javascript -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </div> <!-- /apple-container -->
+
+  <!-- ========================================================================
+       MODAL 1: Login & Register Overlay (Antigravity Floating Card)
+       ======================================================================== -->
+  <div id="authModal" class="apple-modal-overlay">
+    <div class="apple-modal-card">
+      <div class="modal-header">
+        <div style="width: 44px; height: 44px; border-radius: 12px; background: var(--apple-blue-soft); color: var(--apple-blue); display: flex; align-items: center; justify-content: center; margin: 0 auto 0.75rem;">
+          <i data-lucide="shield-check" style="width: 24px; height: 24px;"></i>
+        </div>
+        <h3>เข้าสู่ระบบ Goods Tracker</h3>
+        <p>ระบุรหัสพนักงานเพื่อเริ่มการทำงาน หรือสมัครสมาชิกใหม่</p>
+      </div>
+
+      <div class="modal-body">
+        <!-- Auth Tabs (Login vs Register) -->
+        <div class="auth-tabs" id="authTabs">
+          <button type="button" class="auth-tab-btn active" data-tab="login">เข้าสู่ระบบ</button>
+          <button type="button" class="auth-tab-btn" data-tab="register">สมัครสมาชิกใหม่</button>
+        </div>
+
+        <!-- 1. LOGIN FORM -->
+        <form id="loginForm">
+          <div class="apple-form-group" style="margin-bottom: 1.25rem;">
+            <label class="apple-label" for="loginEmployeeId">รหัสพนักงาน (Employee ID)</label>
+            <input 
+              type="text" 
+              id="loginEmployeeId" 
+              class="apple-input" 
+              placeholder="เช่น EMP001" 
+              required
+              autocomplete="username"
+            >
+            <span style="font-size: 0.72rem; color: var(--apple-text-muted); margin-top: 0.25rem;">
+              *รหัสทดสอบเริ่มต้นในระบบ: <b>EMP001</b> (Peerapat Buasa)
+            </span>
+          </div>
+
+          <button type="submit" id="btnLoginSubmit" class="apple-btn apple-btn-primary" style="width: 100%;">
+            <span>เข้าสู่ระบบ (Sign In)</span>
+          </button>
+        </form>
+
+        <!-- 2. REGISTER FORM -->
+        <form id="registerForm" style="display: none;">
+          <div class="apple-form-group" style="margin-bottom: 0.85rem;">
+            <label class="apple-label" for="registerFullName">ชื่อ - นามสกุล ภาษาอังกฤษ (Full Name EN)</label>
+            <input 
+              type="text" 
+              id="registerFullName" 
+              class="apple-input" 
+              placeholder="เช่น Peerapat Buasa หรือ John Doe" 
+              required
+              autocomplete="name"
+            >
+          </div>
+
+          <div class="apple-form-group" style="margin-bottom: 1.25rem;">
+            <label class="apple-label" for="registerEmployeeId">รหัสพนักงาน (Employee ID)</label>
+            <input 
+              type="text" 
+              id="registerEmployeeId" 
+              class="apple-input" 
+              placeholder="เช่น EMP002" 
+              required
+            >
+          </div>
+
+          <button type="submit" id="btnRegisterSubmit" class="apple-btn apple-btn-primary" style="width: 100%;">
+            <span>สมัครสมาชิกและบันทึกลง Excel</span>
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MODAL 2: Signature Name Verification Modal (ตรวจชื่อคนกดปิดงาน)
+       ======================================================================== -->
+  <div id="confirmCompleteModal" class="apple-modal-overlay">
+    <div class="apple-modal-card" style="max-width: 480px;">
+      <div class="modal-header">
+        <div style="width: 44px; height: 44px; border-radius: 12px; background: rgba(52, 199, 89, 0.12); color: var(--apple-green-text); display: flex; align-items: center; justify-content: center; margin: 0 auto 0.75rem;">
+          <i data-lucide="check-circle-2" style="width: 24px; height: 24px;"></i>
+        </div>
+        <h3>ยืนยันการปิดงาน (Verify Signature)</h3>
+        <p>กรุณายืนยันตัวตนด้วยชื่อ-นามสกุลจริง เพื่อบันทึกผู้รับผิดชอบปิดงาน</p>
+      </div>
+
+      <div class="modal-body">
+        <div style="background: var(--apple-bg); border-radius: var(--apple-radius-md); padding: 0.85rem 1rem; border: 1px solid var(--apple-border); font-size: 0.84rem;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 0.35rem;">
+            <span style="color: var(--apple-text-secondary);">หมายเลข PO:</span>
+            <span style="font-weight: 700;" id="modalPoNumber">-</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 0.35rem;">
+            <span style="color: var(--apple-text-secondary);">สินค้า:</span>
+            <span style="font-weight: 600;" id="modalItemName">-</span>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: var(--apple-text-secondary);">ผู้ล็อกอินปัจจุบัน:</span>
+            <span style="font-weight: 700; color: var(--apple-blue);" id="modalExpectedUser">-</span>
+          </div>
+        </div>
+
+        <form id="verifySignatureForm">
+          <input type="hidden" id="modalRecordId">
+
+          <div class="apple-form-group">
+            <label class="apple-label" for="inputSignatureName">
+              พิมพ์ชื่อ - นามสกุลเต็มภาษาอังกฤษของท่าน:
+            </label>
+            <input 
+              type="text" 
+              id="inputSignatureName" 
+              class="apple-input" 
+              placeholder="เช่น Peerapat Buasa" 
+              required
+              autocomplete="off"
+            >
+            <div id="signatureErrorMessage" style="font-size: 0.78rem; color: var(--apple-red); margin-top: 0.3rem; display: none;"></div>
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; gap: 0.65rem; margin-top: 1.25rem;">
+            <button type="button" id="btnCancelSignature" class="apple-btn apple-btn-secondary">ยกเลิก</button>
+            <button type="submit" id="btnConfirmSignature" class="apple-btn apple-btn-primary">
+              <i data-lucide="check" style="width: 16px; height: 16px;"></i>
+              <span>ยืนยันปิดงานสำเร็จ</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="apple-toast-container"></div>
+
+  <!-- Scripts: Local Icons -> Particles -> App Logic -->
+  <script src="js/icons.js"></script>
+  <script src="js/particles.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
