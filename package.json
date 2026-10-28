@@ -1,13 +1,17 @@
 {
-  "name": "outlook",
+  "name": "goods-tracker",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Goods Tracker connected to PBGM8G > WareOut",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs"
+  "type": "commonjs",
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "mssql": "^10.0.2"
+  }
 }

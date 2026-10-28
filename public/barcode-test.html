@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Goods Tracker | แผ่นทดสอบบาร์โค้ด &amp; QR Code (Barcode &amp; QR Test Sheet)</title>
+  
+  <!-- Apple & Modern Thai Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    body {
+      background: #f5f5f7;
+      color: #1d1d1f;
+      padding: 2rem 1.5rem 5rem;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Prompt", sans-serif;
+    }
+
+    .test-sheet-wrap {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .test-header {
+      background: #ffffff;
+      border-radius: 18px;
+      padding: 1.75rem 2rem;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .test-header-left h1 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+    }
+
+    .test-header-left p {
+      color: #6e6e73;
+      font-size: 0.88rem;
+      margin-top: 0.35rem;
+    }
+
+    .test-actions {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+    }
+
+    .section-title-wrap {
+      margin: 2.25rem 0 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .section-title-wrap h2 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #1d1d1f;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .section-title-wrap p {
+      font-size: 0.84rem;
+      color: #6e6e73;
+    }
+
+    /* Barcode Grid */
+    .barcode-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .barcode-card {
+      background: #ffffff;
+      border-radius: 14px;
+      padding: 1.5rem;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+
+    .barcode-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+      border-color: rgba(0, 113, 227, 0.3);
+    }
+
+    .barcode-badge-row {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      margin-bottom: 0.75rem;
+      font-size: 0.78rem;
+    }
+
+    .barcode-visual-pair {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      background: #ffffff;
+      padding: 0.75rem 1rem;
+      border-radius: 10px;
+      border: 1px dashed rgba(0, 0, 0, 0.12);
+      margin-bottom: 1rem;
+    }
+
+    .barcode-desc-box {
+      width: 100%;
+      text-align: left;
+      font-size: 0.82rem;
+      color: #6e6e73;
+      border-top: 1px solid rgba(0, 0, 0, 0.06);
+      padding-top: 0.75rem;
+      margin-top: 0.25rem;
+    }
+
+    .barcode-desc-box b {
+      color: #1d1d1f;
+    }
+
+    .barcode-actions-row {
+      display: flex;
+      gap: 0.5rem;
+      width: 100%;
+      margin-top: 0.85rem;
+    }
+
+    .btn-sim-scan {
+      flex: 1;
+      background: #f5f5f7;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      color: #1d1d1f;
+      padding: 0.45rem 0.75rem;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+      transition: all 0.2s ease;
+    }
+    .btn-sim-scan:hover {
+      background: #0071e3;
+      color: #ffffff;
+      border-color: #0071e3;
+    }
+
+    /* Live Generator Card */
+    .generator-panel {
+      background: #ffffff;
+      border-radius: 18px;
+      padding: 1.75rem 2rem;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+      margin-top: 2rem;
+    }
+
+    .gen-input-row {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .gen-input-row input {
+      flex: 1;
+      min-width: 280px;
+    }
+
+    .gen-preview-box {
+      margin-top: 1.5rem;
+      padding: 1.5rem;
+      background: #fbfbfd;
+      border-radius: 12px;
+      border: 1px solid rgba(0, 0, 0, 0.06);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+    }
+
+    /* Print Styles */
+    @media print {
+      body {
+        background: #ffffff !important;
+        padding: 0 !important;
+      }
+      .test-header, .generator-panel, .btn-sim-scan, .no-print {
+        display: none !important;
+      }
+      .barcode-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 1rem !important;
+      }
+      .barcode-card {
+        border: 1px solid #ccc !important;
+        box-shadow: none !important;
+        page-break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="test-sheet-wrap">
+
+    <!-- Top Header -->
+    <header class="test-header no-print">
+      <div class="test-header-left">
+        <h1>
+          <span>📦 Goods Tracker</span>
+          <span style="font-size: 0.92rem; font-weight: 600; background: #e8f3ff; color: #0071e3; padding: 0.25rem 0.75rem; border-radius: 980px;">แผ่นทดสอบ Barcode &amp; QR Code</span>
+        </h1>
+        <p>ใช้สำหรับยิงทดสอบเครื่องสแกนบาร์โค้ด 1D/2D และกล้องสแกน ทั้งจากหน้าจอ และสั่งพิมพ์บนกระดาษ A4</p>
+      </div>
+      <div class="test-actions">
+        <a href="/" class="apple-btn apple-btn-secondary" style="text-decoration: none; font-size: 0.85rem;">
+          <span>← กลับหน้าหลัก</span>
+        </a>
+        <button type="button" onclick="window.print()" class="apple-btn apple-btn-primary" style="font-size: 0.85rem;">
+          <span>🖨️ พิมพ์แผ่นบาร์โค้ด (Print A4)</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Feature Highlight Banner: Automatic Thai Keyboard Layout Conversion & Direct Autofill -->
+    <div class="no-print" style="background: linear-gradient(135deg, rgba(0, 113, 227, 0.08), rgba(52, 199, 89, 0.08)); border: 1px solid rgba(0, 113, 227, 0.2); border-radius: 14px; padding: 1.25rem 1.6rem; margin-bottom: 2rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+      <div style="display: flex; align-items: center; gap: 1rem;">
+        <div style="width: 48px; height: 48px; border-radius: 12px; background: #0071e3; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0;">
+          ⚡
+        </div>
+        <div>
+          <div style="font-weight: 700; font-size: 0.98rem; color: #1d1d1f;">
+            ระบบตรวจจับสแกนเนอร์อัจฉริยะ (Universal Scan &amp; Auto Thai-to-English)
+          </div>
+          <div style="font-size: 0.84rem; color: #48484a; margin-top: 0.25rem; line-height: 1.5;">
+            ✅ <b>ไม่ต้องคลิกที่ช่อง PO ก่อนยิง:</b> ยิงสแกนจากที่ไหนก็ได้บนหน้าจอ ระบบจะเติมเลข PO และดึงรายละเอียดสินค้า, คู่ค้า, จำนวน, หน่วยนับครบถ้วนอัตโนมัติ<br>
+            ✅ <b>แปลงภาษาไทยเป็นอังกฤษอัตโนมัติทุกช่อง:</b> แม้แป้นพิมพ์ Windows จะค้างภาษาไทยไว้ (<code style="background:#e8e8ed;padding:2px 6px;border-radius:4px;font-weight:bold;">ญฯขฆฉฤ์ขตต</code>) ระบบจะแปลงกลับเป็น (<code style="background:#e8e8ed;padding:2px 6px;border-radius:4px;font-weight:bold;">PO-SCAN-99</code>) 100%
+          </div>
+        </div>
+      </div>
+      <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+        <a href="/?scan=PO-SCAN-99" class="apple-btn apple-btn-primary" style="font-size: 0.82rem; text-decoration: none; display: flex; align-items: center; gap: 0.4rem;">
+          <span>⚡ ทดสอบสแกน PO-SCAN-99</span>
+        </a>
+        <a href="/?scan=ญฯขฆฉฤ์ขตต" class="apple-btn apple-btn-secondary" style="font-size: 0.82rem; text-decoration: none; display: flex; align-items: center; gap: 0.4rem; border-color: rgba(0,113,227,0.3);">
+          <span>🌐 ทดสอบยิงภาษาไทย (ญฯขฆฉฤ์ขตต)</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- SECTION 1: Standard Orders (Barcode 1D + QR Code 2D) -->
+    <div class="section-title-wrap">
+      <div>
+        <h2>⚡ 1. บาร์โค้ด PO ในระบบ (Code 128 &amp; QR Code)</h2>
+        <p>ยิงบาร์โค้ดหรือ QR Code เหล่านี้ในหน้าหลัก จะพบรายการทันที และกรอกรายละเอียดลงฟอร์มให้อัตโนมัติ</p>
+      </div>
+    </div>
+
+    <div class="barcode-grid" id="ordersBarcodeGrid">
+      <!-- Card 1: PO-SCAN-99 -->
+      <div class="barcode-card">
+        <div class="barcode-badge-row">
+          <span class="apple-badge badge-inbound">📥 รับเข้า (Inbound)</span>
+          <span class="apple-badge badge-alert-schedule">⏳ รอดำเนินการ (Pending)</span>
+        </div>
+        <div class="barcode-visual-pair">
+          <div id="barcode-PO-SCAN-99" style="flex:1;display:flex;justify-content:center;"></div>
+          <div id="qrcode-PO-SCAN-99" style="flex-shrink:0;"></div>
+        </div>
+        <div class="barcode-desc-box">
+          <div><b>สินค้า:</b> กล่องพัสดุลูกฟูก เบอร์ A (14x20x6 ซม.)</div>
+          <div><b>คู่ค้า:</b> บจก. สยาม โลจิสติกส์ ซัพพลาย (120 กล่อง)</div>
+          <div><b>รหัสอ้างอิง:</b> REC-468170</div>
+        </div>
+        <div class="barcode-actions-row no-print">
+          <button type="button" class="btn-sim-scan" onclick="copyAndNotify('PO-SCAN-99')">
+            <span>📋 คัดลอก PO</span>
+          </button>
+          <a href="/?scan=PO-SCAN-99" class="btn-sim-scan" style="text-decoration:none;">
+            <span>⚡ สแกนในหน้าหลัก</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Card 2: PO-URGENT-99 -->
+      <div class="barcode-card">
+        <div class="barcode-badge-row">
+          <span class="apple-badge badge-outbound">📤 ส่งออก (Outbound)</span>
+          <span class="apple-badge badge-alert-urgent">🔴 ด่วนมาก (&lt; 2 ชม.)</span>
+        </div>
+        <div class="barcode-visual-pair">
+          <div id="barcode-PO-URGENT-99" style="flex:1;display:flex;justify-content:center;"></div>
+          <div id="qrcode-PO-URGENT-99" style="flex-shrink:0;"></div>
+        </div>
+        <div class="barcode-desc-box">
+          <div><b>สินค้า:</b> เทป OPP ใส 2 นิ้ว x 45 หลา (300 ม้วน)</div>
+          <div><b>คู่ค้า:</b> บมจ. ไทยอินดัสเทรียล พาร์ทส</div>
+          <div><b>รหัสอ้างอิง:</b> REC-059549</div>
+        </div>
+        <div class="barcode-actions-row no-print">
+          <button type="button" class="btn-sim-scan" onclick="copyAndNotify('PO-URGENT-99')">
+            <span>📋 คัดลอก PO</span>
+          </button>
+          <a href="/?scan=PO-URGENT-99" class="btn-sim-scan" style="text-decoration:none;">
+            <span>⚡ สแกนในหน้าหลัก</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Card 3: PO-2026-8801 -->
+      <div class="barcode-card">
+        <div class="barcode-badge-row">
+          <span class="apple-badge badge-inbound">📥 รับเข้า (Inbound)</span>
+          <span class="apple-badge badge-alert-schedule">⏳ รอดำเนินการ (Pending)</span>
+        </div>
+        <div class="barcode-visual-pair">
+          <div id="barcode-PO-2026-8801" style="flex:1;display:flex;justify-content:center;"></div>
+          <div id="qrcode-PO-2026-8801" style="flex-shrink:0;"></div>
+        </div>
+        <div class="barcode-desc-box">
+          <div><b>สินค้า:</b> พาเลทไม้มาตรฐาน (100x120 ซม.) 50 ตัว</div>
+          <div><b>คู่ค้า:</b> บจก. สยาม โลจิสติกส์ ซัพพลาย</div>
+          <div><b>รหัสอ้างอิง:</b> REC-059459</div>
+        </div>
+        <div class="barcode-actions-row no-print">
+          <button type="button" class="btn-sim-scan" onclick="copyAndNotify('PO-2026-8801')">
+            <span>📋 คัดลอก PO</span>
+          </button>
+          <a href="/?scan=PO-2026-8801" class="btn-sim-scan" style="text-decoration:none;">
+            <span>⚡ สแกนในหน้าหลัก</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Card 4: TEST0001 -->
+      <div class="barcode-card">
+        <div class="barcode-badge-row">
+          <span class="apple-badge badge-inbound">📥 รับเข้า</span>
+          <span class="apple-badge badge-alert-completed">✅ เสร็จสิ้นแล้ว</span>
+        </div>
+        <div class="barcode-visual-pair">
+          <div id="barcode-TEST0001" style="flex:1;display:flex;justify-content:center;"></div>
+          <div id="qrcode-TEST0001" style="flex-shrink:0;"></div>
+        </div>
+        <div class="barcode-desc-box">
+          <div><b>สินค้า:</b> test1 (1 ชิ้น)</div>
+          <div><b>คู่ค้า:</b> TEST1</div>
+          <div><b>ปิดงานโดย:</b> KRITSAGRON YUNGPRASERT</div>
+        </div>
+        <div class="barcode-actions-row no-print">
+          <button type="button" class="btn-sim-scan" onclick="copyAndNotify('TEST0001')">
+            <span>📋 คัดลอก PO</span>
+          </button>
+          <a href="/?scan=TEST0001" class="btn-sim-scan" style="text-decoration:none;">
+            <span>⚡ สแกนในหน้าหลัก</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 2: Full Data Payload QR Codes -->
+    <div class="section-title-wrap">
+      <div>
+        <h2>📱 2. QR Code พร้อมรายละเอียดเต็ม (Full Data Payload QR)</h2>
+        <p>QR Code บรรจุข้อมูลครบชุด (PO, คู่ค้า, ชื่อสินค้า, จำนวน, หน่วยนับ) เมื่อยิงสแกนจะเติมทุกช่องในฟอร์มทันที</p>
+      </div>
+    </div>
+
+    <div class="barcode-grid">
+      <!-- Full QR 1 -->
+      <div class="barcode-card">
+        <div class="barcode-badge-row">
+          <span class="apple-badge badge-inbound">📥 ข้อมูลครบชุด (JSON)</span>
+          <span class="apple-badge badge-po">PO-SCAN-99</span>
+        </div>
+        <div style="background:#ffffff;padding:0.75rem;border-radius:10px;border:1px dashed rgba(0,0,0,0.12);margin-bottom:0.75rem;" id="fullqr-PO-SCAN-99"></div>
+        <div class="barcode-desc-box">
+          <div><b>PO:</b> PO-SCAN-99 (รับเข้า)</div>
+          <div><b>สินค้า:</b> กล่องพัสดุลูกฟูก เบอร์ A (120 กล่อง)</div>
+          <div><b>คู่ค้า:</b> บจก. สยาม โลจิสติกส์ ซัพพลาย</div>
+        </div>
+        <div class="barcode-actions-row no-print">
+          <button type="button" class="btn-sim-scan" onclick="simulateFullQR(1)">
+            <span>⚡ จำลองสแกน QR นี้</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Full QR 2 -->
+      <div class="barcode-card">
+        <div class="barcode-badge-row">
+          <span class="apple-badge badge-outbound">📤 ข้อมูลครบชุด (JSON)</span>
+          <span class="apple-badge badge-alert-urgent">PO-URGENT-99</span>
+        </div>
+        <div style="background:#ffffff;padding:0.75rem;border-radius:10px;border:1px dashed rgba(0,0,0,0.12);margin-bottom:0.75rem;" id="fullqr-PO-URGENT-99"></div>
+        <div class="barcode-desc-box">
+          <div><b>PO:</b> PO-URGENT-99 (ส่งออก)</div>
+          <div><b>สินค้า:</b> เทป OPP ใส 2 นิ้ว x 45 หลา (300 ม้วน)</div>
+          <div><b>คู่ค้า:</b> บมจ. ไทยอินดัสเทรียล พาร์ทส</div>
+        </div>
+        <div class="barcode-actions-row no-print">
+          <button type="button" class="btn-sim-scan" onclick="simulateFullQR(2)">
+            <span>⚡ จำลองสแกน QR นี้</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Full QR 3 -->
+      <div class="barcode-card">
+        <div class="barcode-badge-row">
+          <span class="apple-badge badge-inbound">📥 ข้อมูลครบชุด (JSON)</span>
+          <span class="apple-badge badge-po">PO-2026-8801</span>
+        </div>
+        <div style="background:#ffffff;padding:0.75rem;border-radius:10px;border:1px dashed rgba(0,0,0,0.12);margin-bottom:0.75rem;" id="fullqr-PO-2026-8801"></div>
+        <div class="barcode-desc-box">
+          <div><b>PO:</b> PO-2026-8801 (รับเข้า)</div>
+          <div><b>สินค้า:</b> พาเลทไม้มาตรฐาน (100x120 ซม.) (50 ตัว)</div>
+          <div><b>คู่ค้า:</b> บจก. สยาม โลจิสติกส์ ซัพพลาย</div>
+        </div>
+        <div class="barcode-actions-row no-print">
+          <button type="button" class="btn-sim-scan" onclick="simulateFullQR(3)">
+            <span>⚡ จำลองสแกน QR นี้</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 3: Master Data SKUs -->
+    <div class="section-title-wrap">
+      <div>
+        <h2>🏷️ 3. บาร์โค้ดรหัสสินค้า SKU และ Master Data</h2>
+        <p>ใช้สแกนเพื่อกรอกชื่อสินค้าและค้นหารายการในคลังอย่างรวดเร็ว</p>
+      </div>
+    </div>
+
+    <div class="barcode-grid">
+      <div class="barcode-card">
+        <div class="barcode-badge-row">
+          <span class="apple-badge badge-po">SKU Code</span>
+          <span style="font-size: 0.78rem; color: #6e6e73;">หมวดหมู่: กล่องบรรจุภัณฑ์</span>
+        </div>
+        <div class="barcode-visual-pair">
+          <div id="barcode-BOX-A-01" style="flex:1;display:flex;justify-content:center;"></div>
+          <div id="qrcode-BOX-A-01" style="flex-shrink:0;"></div>
+        </div>
+        <div class="barcode-desc-box">
+          <div><b>ชื่อสินค้า:</b> กล่องพัสดุลูกฟูก เบอร์ A (14x20x6 ซม.)</div>
+          <div><b>หน่วยนับมาตรฐาน:</b> กล่อง</div>
+        </div>
+      </div>
+
+      <div class="barcode-card">
+        <div class="barcode-badge-row">
+          <span class="apple-badge badge-po">SKU Code</span>
+          <span style="font-size: 0.78rem; color: #6e6e73;">หมวดหมู่: เทปกาว/แพ็คเกจจิ้ง</span>
+        </div>
+        <div class="barcode-visual-pair">
+          <div id="barcode-TAPE-CLR-01" style="flex:1;display:flex;justify-content:center;"></div>
+          <div id="qrcode-TAPE-CLR-01" style="flex-shrink:0;"></div>
+        </div>
+        <div class="barcode-desc-box">
+          <div><b>ชื่อสินค้า:</b> เทป OPP ใส 2 นิ้ว x 45 หลา</div>
+          <div><b>หน่วยนับมาตรฐาน:</b> ม้วน</div>
+        </div>
+      </div>
+
+      <div class="barcode-card">
+        <div class="barcode-badge-row">
+          <span class="apple-badge badge-po">SKU Code</span>
+          <span style="font-size: 0.78rem; color: #6e6e73;">หมวดหมู่: อุปกรณ์คลังสินค้า</span>
+        </div>
+        <div class="barcode-visual-pair">
+          <div id="barcode-PLT-WD-01" style="flex:1;display:flex;justify-content:center;"></div>
+          <div id="qrcode-PLT-WD-01" style="flex-shrink:0;"></div>
+        </div>
+        <div class="barcode-desc-box">
+          <div><b>ชื่อสินค้า:</b> พาเลทไม้มาตรฐาน (100x120 ซม.)</div>
+          <div><b>หน่วยนับมาตรฐาน:</b> ตัว</div>
+        </div>
+      </div>
+
+      <div class="barcode-card">
+        <div class="barcode-badge-row">
+          <span class="apple-badge badge-po">Vendor Code</span>
+          <span style="font-size: 0.78rem; color: #6e6e73;">รหัสคู่ค้า/ซัพพลายเออร์</span>
+        </div>
+        <div class="barcode-visual-pair">
+          <div id="barcode-VND-001" style="flex:1;display:flex;justify-content:center;"></div>
+          <div id="qrcode-VND-001" style="flex-shrink:0;"></div>
+        </div>
+        <div class="barcode-desc-box">
+          <div><b>ชื่อบริษัท:</b> บจก. สยาม โลจิสติกส์ ซัพพลาย</div>
+          <div><b>เบอร์โทร:</b> 02-889-1234</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 4: Live Barcode & QR Code Generator -->
+    <div class="generator-panel no-print">
+      <h2 style="font-size: 1.25rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem;">
+        <span>✨ 4. เครื่องมือสร้างบาร์โค้ด &amp; QR Code สด (Instant Generator)</span>
+      </h2>
+      <p style="color: #6e6e73; font-size: 0.88rem; margin-top: 0.35rem;">
+        พิมพ์ข้อความ, เลข PO หรือ JSON payload ระบบจะสร้างบาร์โค้ดและ QR Code คมชัดสแกนได้จริงทันที
+      </p>
+
+      <div class="gen-input-row">
+        <input type="text" id="liveBarcodeInput" class="apple-input" value="PO-2026-CUSTOM" placeholder="กรอกข้อความที่ต้องการสร้างบาร์โค้ด หรือ QR Code...">
+        <button type="button" id="btnDownloadSvg" class="apple-btn apple-btn-secondary">
+          <span>💾 ดาวน์โหลด SVG</span>
+        </button>
+      </div>
+
+      <div class="gen-preview-box">
+        <div style="display:flex;gap:2rem;align-items:center;justify-content:center;flex-wrap:wrap;width:100%;">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:0.4rem;">
+            <span style="font-size:0.8rem;font-weight:600;color:#6e6e73;">บาร์โค้ด 1D (Code 128)</span>
+            <div id="liveBarcodeOutput"></div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:0.4rem;">
+            <span style="font-size:0.8rem;font-weight:600;color:#6e6e73;">QR Code 2D (Model 2)</span>
+            <div id="liveQROutput"></div>
+          </div>
+        </div>
+        <div style="font-size: 0.8rem; color: #86868b;">รองรับเครื่องสแกนบาร์โค้ด 1D/2D ทุกรุ่นบนท้องตลาด และกล้องมือถือ/เว็บแคม</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="apple-toast-container"></div>
+
+  <!-- Scripts -->
+  <script src="js/barcode.js"></script>
+  <script>
+    const fullPayloads = {
+      1: JSON.stringify({
+        po: "PO-SCAN-99",
+        vendor: "บจก. สยาม โลจิสติกส์ ซัพพลาย",
+        itemName: "กล่องพัสดุลูกฟูก เบอร์ A (14x20x6 ซม.)",
+        quantity: 120,
+        unit: "กล่อง",
+        type: "รับเข้า"
+      }),
+      2: JSON.stringify({
+        po: "PO-URGENT-99",
+        vendor: "บมจ. ไทยอินดัสเทรียล พาร์ทส",
+        itemName: "เทป OPP ใส 2 นิ้ว x 45 หลา",
+        quantity: 300,
+        unit: "ม้วน",
+        type: "ส่งออก"
+      }),
+      3: JSON.stringify({
+        po: "PO-2026-8801",
+        vendor: "บจก. สยาม โลจิสติกส์ ซัพพลาย",
+        itemName: "พาเลทไม้มาตรฐาน (100x120 ซม.)",
+        quantity: 50,
+        unit: "ตัว",
+        type: "รับเข้า"
+      })
+    };
+
+    function simulateFullQR(id) {
+      const payload = fullPayloads[id];
+      if (!payload) return;
+      copyAndNotify(payload);
+      showSimpleToast('คัดลอก JSON QR Code แล้ว! สามารถไปวางหรือสแกนในหน้าหลักได้ทันที');
+    }
+
+    function renderCardBarcode(elementId, text, barWidth = 1.8, height = 55) {
+      const el = document.getElementById(elementId);
+      if (el && window.generateBarcodeSVG) {
+        el.innerHTML = window.generateBarcodeSVG(text, { barWidth, height, fontSize: 11 });
+      }
+    }
+
+    function renderCardQR(elementId, text, size = 80) {
+      const el = document.getElementById(elementId);
+      if (el && window.generateQRCodeSVG) {
+        el.innerHTML = window.generateQRCodeSVG(text, { size, margin: 1 });
+      }
+    }
+
+    // Render all pre-defined barcodes on load
+    window.addEventListener('DOMContentLoaded', () => {
+      // 1D Barcodes
+      renderCardBarcode('barcode-PO-SCAN-99', 'PO-SCAN-99', 1.8, 55);
+      renderCardBarcode('barcode-PO-URGENT-99', 'PO-URGENT-99', 1.8, 55);
+      renderCardBarcode('barcode-PO-2026-8801', 'PO-2026-8801', 1.7, 55);
+      renderCardBarcode('barcode-TEST0001', 'TEST0001', 1.9, 55);
+
+      renderCardBarcode('barcode-BOX-A-01', 'BOX-A-01', 1.8, 50);
+      renderCardBarcode('barcode-TAPE-CLR-01', 'TAPE-CLR-01', 1.7, 50);
+      renderCardBarcode('barcode-PLT-WD-01', 'PLT-WD-01', 1.8, 50);
+      renderCardBarcode('barcode-VND-001', 'VND-001', 1.9, 50);
+
+      // 2D QR Codes
+      renderCardQR('qrcode-PO-SCAN-99', 'PO-SCAN-99', 75);
+      renderCardQR('qrcode-PO-URGENT-99', 'PO-URGENT-99', 75);
+      renderCardQR('qrcode-PO-2026-8801', 'PO-2026-8801', 75);
+      renderCardQR('qrcode-TEST0001', 'TEST0001', 75);
+
+      renderCardQR('qrcode-BOX-A-01', 'BOX-A-01', 70);
+      renderCardQR('qrcode-TAPE-CLR-01', 'TAPE-CLR-01', 70);
+      renderCardQR('qrcode-PLT-WD-01', 'PLT-WD-01', 70);
+      renderCardQR('qrcode-VND-001', 'VND-001', 70);
+
+      // Full Payload QR Codes
+      renderCardQR('fullqr-PO-SCAN-99', fullPayloads[1], 150);
+      renderCardQR('fullqr-PO-URGENT-99', fullPayloads[2], 150);
+      renderCardQR('fullqr-PO-2026-8801', fullPayloads[3], 150);
+
+      // Live Generator
+      const input = document.getElementById('liveBarcodeInput');
+      const barcodeOutput = document.getElementById('liveBarcodeOutput');
+      const qrOutput = document.getElementById('liveQROutput');
+
+      function updateLive() {
+        const val = input.value.trim() || 'PO-2026';
+        if (window.generateBarcodeSVG) {
+          barcodeOutput.innerHTML = window.generateBarcodeSVG(val, { barWidth: 2.2, height: 75, fontSize: 13 });
+        }
+        if (window.generateQRCodeSVG) {
+          qrOutput.innerHTML = window.generateQRCodeSVG(val, { size: 140, margin: 2 });
+        }
+      }
+
+      input.addEventListener('input', updateLive);
+      updateLive();
+
+      // Download SVG
+      document.getElementById('btnDownloadSvg').addEventListener('click', () => {
+        const svg = qrOutput.querySelector('svg') || barcodeOutput.querySelector('svg');
+        if (!svg) return;
+        const svgData = new XMLSerializer().serializeToString(svg);
+        const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `code-${input.value.trim() || 'scan'}.svg`;
+        a.click();
+        URL.revokeObjectURL(url);
+      });
+    });
+
+    function copyAndNotify(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        showSimpleToast(`คัดลอก "${text.length > 30 ? text.slice(0, 30) + '...' : text}" เรียบร้อยแล้ว`);
+      }).catch(() => {
+        showSimpleToast(`คัดลอกข้อมูลแล้ว`);
+      });
+    }
+
+    function showSimpleToast(msg) {
+      const c = document.getElementById('toastContainer');
+      const t = document.createElement('div');
+      t.className = 'apple-toast show';
+      t.innerHTML = `<span>${msg}</span>`;
+      c.appendChild(t);
+      setTimeout(() => {
+        t.classList.remove('show');
+        setTimeout(() => t.remove(), 300);
+      }, 2500);
+    }
+  </script>
+</body>
+</html>

@@ -26,7 +26,7 @@
     <!-- Top Header Navigation -->
     <header class="apple-header">
       <div class="apple-brand">
-        <!-- Permanent Inline SVG Logo (Will never disappear on refresh) -->
+        <!-- Permanent Inline SVG Logo -->
         <div class="apple-logo-wrap" title="Goods Tracker Logo">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--apple-blue);">
             <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/>
@@ -37,26 +37,43 @@
         <div class="apple-brand-text">
           <h1>
             Goods Tracker
-            <span class="apple-badge-excel">EXCEL DATABASE</span>
+            <span class="apple-badge-db" id="dbStatusBadge"><span class="db-pulse-dot"></span>PBGM8G &gt; WareOut</span>
           </h1>
-          <p class="apple-brand-subtitle">ระบบบันทึกและติดตามสถานะสินค้าเข้า-ออก พร้อมแจ้งเตือนกำหนดเวลา</p>
+          <p class="apple-brand-subtitle">ระบบบันทึกและติดตามสถานะสินค้าเข้า-ออก • Microsoft SQL Server (PBGM8G &gt; WareOut)</p>
         </div>
       </div>
 
       <div class="apple-header-actions">
+        <!-- Admin Navigation Actions (Visible only to Admin) -->
+        <div id="adminNavActions" class="admin-nav-actions" style="display: none;">
+          <button type="button" id="btnOpenDashboard" class="admin-pill-btn" title="รายงานสรุปภาพรวมและสถิติ">
+            <i data-lucide="bar-chart-3" style="width: 14px; height: 14px; color: var(--apple-blue);"></i>
+            <span>แดชบอร์ดสรุป</span>
+          </button>
+          <button type="button" id="btnOpenUserMgmt" class="admin-pill-btn" title="จัดการบัญชีผู้ใช้และกำหนดสิทธิ์">
+            <i data-lucide="users" style="width: 14px; height: 14px; color: #ff9500;"></i>
+            <span>จัดการผู้ใช้</span>
+          </button>
+          <button type="button" id="btnOpenAuditLog" class="admin-pill-btn" title="ประวัติการแก้ไขและตรวจสอบย้อนหลัง">
+            <i data-lucide="history" style="width: 14px; height: 14px; color: #af52de;"></i>
+            <span>Audit Trail</span>
+          </button>
+        </div>
+
         <!-- Logged-in User Display -->
         <div id="userProfileBar" class="user-pill" style="display: none;">
           <div class="user-pill-avatar" id="userAvatarText">P</div>
           <span id="userNameDisplay">Peerapat Buasa</span>
-          <button type="button" id="btnLogout" class="apple-btn-today" style="margin-left: 0.25rem;" title="ออกจากระบบ">
-            <i data-lucide="log-out" style="width: 12px; height: 12px;"></i>
+          <span id="userRoleBadge" class="user-role-badge user">User</span>
+          <button type="button" id="btnLogout" class="user-pill-logout" title="ออกจากระบบ">
+            <i data-lucide="log-out" style="width: 11px; height: 11px;"></i>
             <span>ออก</span>
           </button>
         </div>
 
         <!-- Download Excel Button -->
-        <a href="/api/download-excel" class="apple-btn apple-btn-secondary" title="ดาวน์โหลดไฟล์ Excel (.csv)">
-          <i data-lucide="sheet" style="width: 16px; height: 16px; color: #1e7e34;"></i>
+        <a href="/api/download-excel" id="btnHeaderDownloadExcel" class="excel-header-btn" title="ดาวน์โหลดไฟล์ Excel (.csv)">
+          <i data-lucide="sheet" style="width: 14px; height: 14px; color: #1e7e34;"></i>
           <span>ดาวน์โหลด Excel</span>
         </a>
       </div>
@@ -87,7 +104,7 @@
       <div class="apple-card-title">
         <span>บันทึกรายการสินค้า</span>
         <span style="font-size: 0.8rem; font-weight: normal; color: var(--apple-text-secondary);">
-          ข้อมูลจะถูกจัดเก็บลงไฟล์ Excel ทันที
+          เชื่อมต่อฐานข้อมูล SQL Server (PBGM8G &gt; WareOut)
         </span>
       </div>
 
@@ -110,45 +127,78 @@
           <div class="apple-form-group">
             <div class="apple-label-wrap">
               <label class="apple-label" for="inputPoNumber">หมายเลข PO (PO Number)</label>
+              <div style="display: flex; gap: 0.35rem; align-items: center;">
+                <span class="apple-badge badge-po" style="font-size: 0.68rem; padding: 0.15rem 0.45rem; background: rgba(52, 199, 89, 0.15); color: #34c759; border: 1px solid rgba(52, 199, 89, 0.3);">⚡ Auto-Fill On Scan</span>
+                <button type="button" id="btnPoCameraScan" class="apple-btn-today" title="เปิดกล้องสแกน QR Code ทันที">
+                  <i data-lucide="camera" style="width: 12px; height: 12px;"></i>
+                  <span>สแกน QR</span>
+                </button>
+              </div>
             </div>
             <input 
               type="text" 
               id="inputPoNumber" 
               class="apple-input" 
-              placeholder="เช่น A9999A หรือ PO-2026-001" 
+              placeholder="ยิงสแกน QR หรือพิมพ์ เช่น PO-SCAN-99" 
               style="text-transform: uppercase;"
               autocomplete="off"
             >
           </div>
 
-          <!-- ชื่อ Vendor -->
+          <!-- ชื่อ Vendor (Searchable Combobox) -->
           <div class="apple-form-group">
             <div class="apple-label-wrap">
-              <label class="apple-label" for="inputVendor">ชื่อ Vendor / คู่ค้า</label>
+              <label class="apple-label" for="inputVendor">
+                <span>ชื่อ Vendor / คู่ค้า</span>
+                <span style="font-size: 0.72rem; color: var(--apple-blue); font-weight: 500;">(Master Dropdown)</span>
+              </label>
             </div>
-            <input 
-              type="text" 
-              id="inputVendor" 
-              class="apple-input" 
-              placeholder="เช่น บจก. สยาม โลจิสติกส์ หรือ Apex Intertrade" 
-              required
-              autocomplete="off"
-            >
+            <div class="apple-combobox-wrap" id="comboboxVendorWrap">
+              <div class="apple-combobox-input-wrap">
+                <input 
+                  type="text" 
+                  id="inputVendor" 
+                  class="apple-input" 
+                  placeholder="ค้นหาหรือพิมพ์ชื่อ Vendor..." 
+                  required
+                  autocomplete="off"
+                >
+                <button type="button" class="combobox-toggle-btn" tabindex="-1" title="เปิดรายการ">
+                  <i data-lucide="chevron-down" style="width: 14px; height: 14px;"></i>
+                </button>
+              </div>
+              <div class="apple-combobox-dropdown" id="dropdownVendor">
+                <!-- Populated dynamically via JS from VendorMaster -->
+              </div>
+            </div>
           </div>
 
-          <!-- ชื่อสินค้า (Item Name) -->
+          <!-- ชื่อสินค้า (Product Name - Searchable Combobox with SKU & Unit Auto-fill) -->
           <div class="apple-form-group form-full">
             <div class="apple-label-wrap">
-              <label class="apple-label" for="inputItemName">ชื่อสินค้า / สิ่งของที่ส่ง</label>
+              <label class="apple-label" for="inputItemName">
+                <span>ชื่อสินค้า / สิ่งของที่ส่ง</span>
+                <span style="font-size: 0.72rem; color: var(--apple-blue); font-weight: 500;">(Product Master & SKU)</span>
+              </label>
             </div>
-            <input 
-              type="text" 
-              id="inputItemName" 
-              class="apple-input" 
-              placeholder="ระบุชื่อของที่มาส่ง หรือของที่เราส่งออกไปให้ Vendor" 
-              required
-              autocomplete="off"
-            >
+            <div class="apple-combobox-wrap" id="comboboxItemWrap">
+              <div class="apple-combobox-input-wrap">
+                <input 
+                  type="text" 
+                  id="inputItemName" 
+                  class="apple-input" 
+                  placeholder="พิมพ์ค้นหาชื่อสินค้า หรือสแกนรหัส SKU/บาร์โค้ด..." 
+                  required
+                  autocomplete="off"
+                >
+                <button type="button" class="combobox-toggle-btn" tabindex="-1" title="เปิดรายการสินค้า">
+                  <i data-lucide="chevron-down" style="width: 14px; height: 14px;"></i>
+                </button>
+              </div>
+              <div class="apple-combobox-dropdown" id="dropdownItem">
+                <!-- Populated dynamically via JS from ProductMaster -->
+              </div>
+            </div>
           </div>
 
           <!-- จำนวน -->
@@ -167,20 +217,35 @@
             >
           </div>
 
-          <!-- หน่วย -->
+          <!-- หน่วยนับ (Searchable Combobox) -->
           <div class="apple-form-group">
             <div class="apple-label-wrap">
-              <label class="apple-label" for="inputUnit">หน่วยนับ</label>
+              <label class="apple-label" for="inputUnit">
+                <span>หน่วยนับ (UOM)</span>
+                <span style="font-size: 0.72rem; color: var(--apple-blue); font-weight: 500;">(Unit Master)</span>
+              </label>
             </div>
-            <input 
-              type="text" 
-              id="inputUnit" 
-              class="apple-input" 
-              placeholder="เช่น ชิ้น, กล่อง, ลัง, พาเลท" 
-              required
-            >
+            <div class="apple-combobox-wrap" id="comboboxUnitWrap">
+              <div class="apple-combobox-input-wrap">
+                <input 
+                  type="text" 
+                  id="inputUnit" 
+                  class="apple-input" 
+                  placeholder="เช่น ชิ้น, กล่อง, พาเลท" 
+                  required
+                  autocomplete="off"
+                >
+                <button type="button" class="combobox-toggle-btn" tabindex="-1" title="เปิดรายการหน่วยนับ">
+                  <i data-lucide="chevron-down" style="width: 14px; height: 14px;"></i>
+                </button>
+              </div>
+              <div class="apple-combobox-dropdown" id="dropdownUnit">
+                <!-- Populated dynamically via JS from UnitMaster -->
+              </div>
+            </div>
+
             <!-- Quick Unit Chips -->
-            <div class="unit-chips-wrap">
+            <div class="unit-chips-wrap" id="unitChipsContainer">
               <button type="button" class="unit-chip" data-unit="ชิ้น">ชิ้น</button>
               <button type="button" class="unit-chip" data-unit="กล่อง">กล่อง</button>
               <button type="button" class="unit-chip" data-unit="ลัง">ลัง</button>
@@ -240,25 +305,69 @@
         <div class="form-footer-action">
           <button type="submit" id="btnSubmit" class="apple-btn apple-btn-primary">
             <i data-lucide="plus-circle" style="width: 17px; height: 17px;"></i>
-            <span>บันทึกลง Excel</span>
+            <span>บันทึกลงฐานข้อมูล</span>
           </button>
         </div>
       </form>
     </main>
+
+    <!-- Quick Scan Match Banner (Pops up when Barcode/QR is scanned) -->
+    <div id="quickScanBanner" class="quick-scan-banner" style="display: none;">
+      <div class="quick-scan-left">
+        <div class="quick-scan-icon">
+          <i data-lucide="barcode" style="width: 22px; height: 22px;"></i>
+        </div>
+        <div>
+          <div class="quick-scan-title">
+            <span>สแกนพบบาร์โค้ด:</span>
+            <span id="quickScanPo" style="color: #ffd60a;">-</span>
+            <span id="quickScanItem">-</span>
+          </div>
+          <div class="quick-scan-desc" id="quickScanDesc">
+            รอดำเนินการ • สามารถกดปิดงานด่วนได้ทันที
+          </div>
+        </div>
+      </div>
+      <div>
+        <button type="button" id="btnQuickCloseJob" class="quick-scan-btn">
+          <i data-lucide="check-circle" style="width: 16px; height: 16px;"></i>
+          <span>⚡ ปิดงานด่วนทันที (Quick Close)</span>
+        </button>
+      </div>
+    </div>
 
     <!-- Records History Section -->
     <section class="records-section">
       <div class="records-header">
         <div class="records-title-group">
           <h2>ประวัติรายการสินค้าและการแจ้งเตือน</h2>
-          <p id="recordsCountText">แสดงข้อมูลจากไฟล์ Excel</p>
+          <p id="recordsCountText">แสดงข้อมูลจากฐานข้อมูล SQL Server</p>
         </div>
 
         <div class="records-filters">
-          <!-- Live Search -->
-          <div class="search-box">
-            <i data-lucide="search" class="search-icon-svg" style="width: 15px; height: 15px;"></i>
-            <input type="text" id="searchInput" placeholder="ค้นหา PO, Vendor, สินค้า...">
+          <!-- Barcode / QR Code Scanner Search Bar -->
+          <div class="search-scanner-bar">
+            <button type="button" id="btnToggleScanner" class="scanner-btn" title="คลิกหรือกด F2 เพื่อสลับโหมด Barcode Scanner">
+              <i data-lucide="scan" style="width: 14px; height: 14px;"></i>
+              <span>Scanner (F2)</span>
+            </button>
+            <button type="button" id="btnOpenCameraScan" class="scanner-btn" title="เปิดกล้องสแกน QR Code / บาร์โค้ด">
+              <i data-lucide="camera" style="width: 14px; height: 14px;"></i>
+              <span>กล้องสแกน</span>
+            </button>
+            <div class="search-box" id="searchBoxWrap">
+              <i data-lucide="search" class="search-icon-svg" style="width: 15px; height: 15px;"></i>
+              <input 
+                type="text" 
+                id="searchInput" 
+                placeholder="ค้นหา หรือสแกน Barcode/QR (PO, รหัสสินค้า, Vendor)..."
+                autocomplete="off"
+              >
+            </div>
+            <button type="button" id="btnOpenBarcodeModal" class="admin-pill-btn" style="border: 1px solid var(--apple-border-strong); background: #ffffff; padding: 0.5rem 0.95rem; font-size: 0.82rem; font-weight: 600;" title="เปิดแผ่นทดสอบและสร้างบาร์โค้ด">
+              <i data-lucide="barcode" style="width: 15px; height: 15px; color: var(--apple-blue);"></i>
+              <span>แผ่นเทสบาร์โค้ด</span>
+            </button>
           </div>
         </div>
       </div>
@@ -271,11 +380,11 @@
               <th style="width: 110px;">เลข PO</th>
               <th>ชื่อ Vendor</th>
               <th>ชื่อสินค้า (Item Name)</th>
-              <th style="width: 100px;">จำนวน</th>
-              <th style="width: 120px;">วันที่บันทึก</th>
-              <th style="width: 180px;">กำหนดเวลารับของ / แจ้งเตือน</th>
-              <th style="width: 120px; text-align: center;">สถานะงาน</th>
-              <th style="width: 50px; text-align: center;">ลบ</th>
+              <th style="width: 90px;">จำนวน</th>
+              <th style="width: 115px;">วันที่บันทึก</th>
+              <th style="width: 175px;">กำหนดเวลารับของ / แจ้งเตือน</th>
+              <th style="width: 110px; text-align: center;">สถานะงาน</th>
+              <th style="width: 80px; text-align: center;">การจัดการ</th>
             </tr>
           </thead>
           <tbody id="recordsTableBody">
@@ -288,7 +397,7 @@
   </div> <!-- /apple-container -->
 
   <!-- ========================================================================
-       MODAL 1: Login & Register Overlay (Antigravity Floating Card)
+       MODAL 1: Login & Register Overlay
        ======================================================================== -->
   <div id="authModal" class="apple-modal-overlay">
     <div class="apple-modal-card">
@@ -315,12 +424,12 @@
               type="text" 
               id="loginEmployeeId" 
               class="apple-input" 
-              placeholder="เช่น EMP001" 
+              placeholder="เช่น 6298B หรือ EMP001" 
               required
               autocomplete="username"
             >
             <span style="font-size: 0.72rem; color: var(--apple-text-muted); margin-top: 0.25rem;">
-              *รหัสทดสอบเริ่มต้นในระบบ: <b>EMP001</b> (Peerapat Buasa)
+              *รหัส Admin เริ่มต้นในระบบ: <b>6298B</b> (KRITSAGRON YUNGPRASERT)
             </span>
           </div>
 
@@ -337,7 +446,7 @@
               type="text" 
               id="registerFullName" 
               class="apple-input" 
-              placeholder="เช่น Peerapat Buasa หรือ John Doe" 
+              placeholder="เช่น Somchai Jaidee หรือ John Doe" 
               required
               autocomplete="name"
             >
@@ -355,7 +464,7 @@
           </div>
 
           <button type="submit" id="btnRegisterSubmit" class="apple-btn apple-btn-primary" style="width: 100%;">
-            <span>สมัครสมาชิกและบันทึกลง Excel</span>
+            <span>สมัครสมาชิกและบันทึกข้อมูล</span>
           </button>
         </form>
       </div>
@@ -402,7 +511,7 @@
               type="text" 
               id="inputSignatureName" 
               class="apple-input" 
-              placeholder="เช่น Peerapat Buasa" 
+              placeholder="เช่น KRITSAGRON YUNGPRASERT" 
               required
               autocomplete="off"
             >
@@ -421,11 +530,387 @@
     </div>
   </div>
 
+  <!-- ========================================================================
+       MODAL 3: Edit Historical Record Modal (Admin Only)
+       ======================================================================== -->
+  <div id="editRecordModal" class="apple-modal-overlay">
+    <div class="apple-modal-card" style="max-width: 580px;">
+      <div class="modal-header">
+        <div style="width: 44px; height: 44px; border-radius: 12px; background: rgba(0, 113, 227, 0.1); color: var(--apple-blue); display: flex; align-items: center; justify-content: center; margin: 0 auto 0.75rem;">
+          <i data-lucide="edit" style="width: 22px; height: 22px;"></i>
+        </div>
+        <h3>แก้ไขข้อมูลย้อนหลัง (Admin Edit)</h3>
+        <p>การแก้ไขนี้จะถูกบันทึกประวัติลงใน Audit Trail โดยอัตโนมัติ</p>
+      </div>
+
+      <div class="modal-body">
+        <form id="editRecordForm">
+          <input type="hidden" id="editRecordId">
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem;">
+            <div class="apple-form-group">
+              <label class="apple-label" for="editPoNumber">หมายเลข PO</label>
+              <input type="text" id="editPoNumber" class="apple-input" style="text-transform: uppercase;">
+            </div>
+            <div class="apple-form-group">
+              <label class="apple-label" for="editType">ประเภทรายการ</label>
+              <select id="editType" class="apple-input">
+                <option value="รับเข้า">📥 รับเข้า (Inbound)</option>
+                <option value="ส่งออก">📤 ส่งออก (Outbound)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="apple-form-group">
+            <label class="apple-label" for="editVendor">ชื่อ Vendor / คู่ค้า</label>
+            <input type="text" id="editVendor" class="apple-input" required>
+          </div>
+
+          <div class="apple-form-group">
+            <label class="apple-label" for="editItemName">ชื่อสินค้า / สิ่งของ</label>
+            <input type="text" id="editItemName" class="apple-input" required>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem;">
+            <div class="apple-form-group">
+              <label class="apple-label" for="editQuantity">จำนวน</label>
+              <input type="number" id="editQuantity" class="apple-input" step="any" required>
+            </div>
+            <div class="apple-form-group">
+              <label class="apple-label" for="editUnit">หน่วยนับ</label>
+              <input type="text" id="editUnit" class="apple-input" required>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem;">
+            <div class="apple-form-group">
+              <label class="apple-label" for="editDate">วันที่บันทึก</label>
+              <input type="date" id="editDate" class="apple-input" required>
+            </div>
+            <div class="apple-form-group">
+              <label class="apple-label" for="editTime">เวลาบันทึก</label>
+              <input type="time" id="editTime" class="apple-input" required>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem;">
+            <div class="apple-form-group">
+              <label class="apple-label" for="editPickupDate">วันนัดรับของ</label>
+              <input type="date" id="editPickupDate" class="apple-input" required>
+            </div>
+            <div class="apple-form-group">
+              <label class="apple-label" for="editPickupTime">เวลานัดรับของ</label>
+              <input type="time" id="editPickupTime" class="apple-input" required>
+            </div>
+          </div>
+
+          <div class="apple-form-group">
+            <label class="apple-label" for="editStatus">สถานะงาน</label>
+            <select id="editStatus" class="apple-input">
+              <option value="pending">รอดำเนินการ (Pending)</option>
+              <option value="completed">เสร็จสิ้น (Completed)</option>
+            </select>
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; gap: 0.65rem; margin-top: 1.25rem;">
+            <button type="button" id="btnCancelEdit" class="apple-btn apple-btn-secondary">ยกเลิก</button>
+            <button type="submit" id="btnSaveEdit" class="apple-btn apple-btn-primary">
+              <i data-lucide="check" style="width: 16px; height: 16px;"></i>
+              <span>บันทึกการแก้ไข</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MODAL 4: Executive Dashboard / Reports Modal (Admin Only)
+       ======================================================================== -->
+  <div id="dashboardModal" class="apple-modal-overlay">
+    <div class="apple-modal-card modal-xl">
+      <div class="modal-header" style="text-align: left; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--apple-border);">
+        <div>
+          <h3>รายงานสรุปผู้บริหาร (Executive Dashboard)</h3>
+          <p>ภาพรวมผลการดำเนินงาน สถิติ Inbound/Outbound และประสิทธิภาพการปิดงาน</p>
+        </div>
+        <div class="modal-controls">
+          <button type="button" class="modal-maximize-btn" title="ขยายเต็มจอ / ย่อขนาด (Fullscreen)">
+            <i data-lucide="maximize-2" style="width: 15px; height: 15px;"></i>
+          </button>
+          <button type="button" id="btnCloseDashboard" class="modal-close-btn" title="ปิดหน้าต่าง">
+            <i data-lucide="x" style="width: 18px; height: 18px;"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="modal-body">
+        <!-- KPI Summary Cards -->
+        <div class="dashboard-kpis">
+          <div class="kpi-card">
+            <div class="kpi-label">งานทั้งหมด</div>
+            <div class="kpi-val" id="dashTotal">0</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">อัตราปิดงานสำเร็จ</div>
+            <div class="kpi-val" id="dashCompRate" style="color: #34c759;">0%</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">รับเข้า vs ส่งออก</div>
+            <div class="kpi-val" id="dashInOut" style="font-size: 1.15rem; margin-top: 0.5rem;">0 / 0</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">งานเร่งด่วน/เลยกำหนด</div>
+            <div class="kpi-val" id="dashUrgent" style="color: var(--apple-red);">0</div>
+          </div>
+        </div>
+
+        <div class="dashboard-section-grid">
+          <!-- Top 5 Vendors -->
+          <div class="dash-panel">
+            <div class="dash-panel-title">
+              <i data-lucide="package" style="width: 16px; height: 16px; color: var(--apple-blue);"></i>
+              <span>Top 5 คู่ค้า/Vendor ยอดนิยม</span>
+            </div>
+            <div class="chart-bar-list" id="dashTopVendors">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+
+          <!-- Top 5 Products -->
+          <div class="dash-panel">
+            <div class="dash-panel-title">
+              <i data-lucide="layers" style="width: 16px; height: 16px; color: #ff9500;"></i>
+              <span>Top 5 สินค้าเข้า-ออกสูงสุด</span>
+            </div>
+            <div class="chart-bar-list" id="dashTopProducts">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+
+          <!-- Top Staff Performance -->
+          <div class="dash-panel">
+            <div class="dash-panel-title">
+              <i data-lucide="user-check" style="width: 16px; height: 16px; color: #34c759;"></i>
+              <span>ประสิทธิภาพเจ้าหน้าที่ปิดงาน</span>
+            </div>
+            <div class="chart-bar-list" id="dashTopClosers">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+
+          <!-- 7-Day Trend -->
+          <div class="dash-panel">
+            <div class="dash-panel-title">
+              <i data-lucide="calendar" style="width: 16px; height: 16px; color: #af52de;"></i>
+              <span>แนวโน้มรายการ 7 วันล่าสุด</span>
+            </div>
+            <div class="chart-bar-list" id="dashDailyTrend">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MODAL 5: User Management Modal (Admin Only)
+       ======================================================================== -->
+  <div id="userMgmtModal" class="apple-modal-overlay">
+    <div class="apple-modal-card modal-lg">
+      <div class="modal-header" style="text-align: left; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--apple-border);">
+        <div>
+          <h3>จัดการผู้ใช้และสิทธิ์การเข้าถึง (User Management)</h3>
+          <p>กำหนดสิทธิ์ Admin/User สำหรับพนักงานในระบบ WareOut</p>
+        </div>
+        <div class="modal-controls">
+          <button type="button" class="modal-maximize-btn" title="ขยายเต็มจอ / ย่อขนาด (Fullscreen)">
+            <i data-lucide="maximize-2" style="width: 15px; height: 15px;"></i>
+          </button>
+          <button type="button" id="btnCloseUserMgmt" class="modal-close-btn" title="ปิด">
+            <i data-lucide="x" style="width: 18px; height: 18px;"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="modal-body">
+        <table class="apple-table" style="font-size: 0.85rem;">
+          <thead>
+            <tr>
+              <th>รหัสพนักงาน</th>
+              <th>ชื่อ - นามสกุล</th>
+              <th>สิทธิ์ปัจจุบัน</th>
+              <th>วันที่ลงทะเบียน</th>
+              <th style="text-align: center;">เปลี่ยนสิทธิ์</th>
+              <th style="text-align: center;">จัดการ</th>
+            </tr>
+          </thead>
+          <tbody id="userMgmtTableBody">
+            <!-- Rendered via JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MODAL 6: Audit Trail Modal (Admin Only)
+       ======================================================================== -->
+  <div id="auditModal" class="apple-modal-overlay">
+    <div class="apple-modal-card modal-xxl">
+      <div class="modal-header" style="text-align: left; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--apple-border);">
+        <div>
+          <h3>ประวัติการแก้ไขและตรวจสอบ (Audit Trail)</h3>
+          <p>บันทึกประวัติการสร้าง, แก้ไข, ลบข้อมูล และปิดงานจากตาราง dbo.AuditLog</p>
+        </div>
+        <div class="modal-controls">
+          <a href="/api/download-audit-logs" id="btnDownloadAuditLogs" class="apple-btn-today" style="font-size: 0.8rem; text-decoration: none;" title="ดาวน์โหลด Audit Log เป็น Excel CSV">
+            <i data-lucide="sheet" style="width: 14px; height: 14px; color: #1e7e34;"></i>
+            <span>Export Audit Log</span>
+          </a>
+          <button type="button" class="modal-maximize-btn" title="ขยายเต็มจอ / ย่อขนาด (Fullscreen)">
+            <i data-lucide="maximize-2" style="width: 15px; height: 15px;"></i>
+          </button>
+          <button type="button" id="btnCloseAudit" class="modal-close-btn" title="ปิด">
+            <i data-lucide="x" style="width: 18px; height: 18px;"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="modal-body">
+        <!-- Filters -->
+        <div style="display: flex; gap: 0.75rem; align-items: center; margin-bottom: 0.85rem;">
+          <select id="auditActionFilter" class="apple-input" style="width: 160px; font-size: 0.82rem;">
+            <option value="">ทั้งหมด (All Actions)</option>
+            <option value="CREATE">CREATE</option>
+            <option value="UPDATE">UPDATE</option>
+            <option value="DELETE">DELETE</option>
+            <option value="CLOSE_JOB">CLOSE_JOB</option>
+          </select>
+          <input type="text" id="auditSearchInput" class="apple-input" placeholder="ค้นหา User, Record ID, รายละเอียด..." style="font-size: 0.82rem;">
+          <button type="button" id="btnRefreshAudit" class="apple-btn apple-btn-secondary" style="padding: 0.5rem 0.85rem; font-size: 0.8rem;">
+            <i data-lucide="refresh-cw" style="width: 13px; height: 13px;"></i>
+            <span>รีเฟรช</span>
+          </button>
+        </div>
+
+        <table class="audit-table">
+          <thead>
+            <tr>
+              <th style="width: 140px;">เวลา (Timestamp)</th>
+              <th style="width: 85px;">ผู้ใช้</th>
+              <th style="width: 95px;">Action</th>
+              <th style="width: 110px;">ตาราง / ID</th>
+              <th>ค่าเดิม (Old Values)</th>
+              <th>ค่าใหม่ (New Values)</th>
+              <th style="width: 90px;">IP Address</th>
+            </tr>
+          </thead>
+          <tbody id="auditTableBody">
+            <!-- Populated via JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MODAL 7: Barcode Test Center Modal
+       ======================================================================== -->
+  <div id="barcodeModal" class="apple-modal-overlay">
+    <div class="apple-modal-card modal-xl">
+      <div class="modal-header" style="text-align: left; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--apple-border);">
+        <div>
+          <h3>แผ่นทดสอบและสร้างบาร์โค้ด (Barcode Test Center)</h3>
+          <p>ใช้เครื่องสแกนบาร์โค้ดยิงจากหน้าจอ หรือกดปุ่ม ⚡ เพื่อจำลองสัญญาณสแกนเนอร์ความเร็วสูง</p>
+        </div>
+        <div class="modal-controls">
+          <a href="/barcode-test.html" target="_blank" class="apple-btn-today" style="font-size: 0.8rem; text-decoration: none;" title="เปิดหน้าพิมพ์แผ่นบาร์โค้ด A4">
+            <i data-lucide="file-text" style="width: 14px; height: 14px; color: var(--apple-blue);"></i>
+            <span>เปิดหน้าพิมพ์ A4</span>
+          </a>
+          <button type="button" class="modal-maximize-btn" title="ขยายเต็มจอ / ย่อขนาด">
+            <i data-lucide="maximize-2" style="width: 15px; height: 15px;"></i>
+          </button>
+          <button type="button" id="btnCloseBarcode" class="modal-close-btn" title="ปิด">
+            <i data-lucide="x" style="width: 18px; height: 18px;"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="modal-body" style="padding: 1.5rem 2rem 2.5rem !important;">
+        <!-- Live Barcode Creator in Modal -->
+        <div style="background: var(--apple-bg); border: 1px solid var(--apple-border); border-radius: var(--apple-radius-md); padding: 1.15rem 1.35rem; margin-bottom: 1.5rem;">
+          <div style="font-size: 0.92rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.65rem;">
+            <i data-lucide="sparkles" style="width: 16px; height: 16px; color: #ff9500;"></i>
+            <span>สร้างบาร์โค้ดสด (Instant Barcode Generator)</span>
+          </div>
+          <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+            <input type="text" id="modalBarcodeInput" class="apple-input" style="flex: 1; min-width: 240px; font-size: 0.88rem;" placeholder="พิมพ์เลข PO หรือรหัสสินค้าที่ต้องการสร้างบาร์โค้ด..." value="PO-SCAN-99">
+            <button type="button" id="btnSimulateCustomScan" class="apple-btn apple-btn-primary" style="padding: 0.6rem 1.1rem; font-size: 0.84rem; white-space: nowrap;">
+              <i data-lucide="zap" style="width: 14px; height: 14px;"></i>
+              <span>⚡ จำลองยิงบาร์โค้ดนี้</span>
+            </button>
+          </div>
+          <div id="modalBarcodePreview" style="margin-top: 1rem; display: flex; justify-content: center; background: #ffffff; padding: 0.85rem; border-radius: 8px; border: 1px dashed rgba(0,0,0,0.12);"></div>
+        </div>
+
+        <div style="font-size: 0.95rem; font-weight: 700; margin-bottom: 0.85rem; display: flex; align-items: center; gap: 0.5rem;">
+          <i data-lucide="barcode" style="width: 16px; height: 16px; color: var(--apple-blue);"></i>
+          <span>บาร์โค้ดรายการในคลังสินค้า (พร้อมยิงสแกน &amp; ปิดงานด่วน)</span>
+        </div>
+
+        <div class="barcode-modal-grid" id="modalPresetGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1rem;">
+          <!-- Rendered via JS -->
+        </div>
+      </div>
+    </div>
+  <!-- Camera QR / Barcode Scanner Modal -->
+  <div id="cameraScannerModal" class="apple-modal-overlay">
+    <div class="apple-modal-card camera-scanner-card">
+      <div class="modal-header">
+        <div class="modal-header-left">
+          <div class="modal-header-icon" style="background: rgba(52, 199, 89, 0.15); color: #34c759;">
+            <i data-lucide="camera" style="width: 18px; height: 18px;"></i>
+          </div>
+          <div>
+            <h3 class="modal-title">สแกน QR Code / บาร์โค้ดผ่านกล้อง</h3>
+            <p class="modal-subtitle">ส่องกล้องไปที่ QR Code หรือบาร์โค้ดบนเอกสาร/กล่องพัสดุ</p>
+          </div>
+        </div>
+        <div class="modal-header-actions">
+          <button type="button" id="btnCloseCamera" class="modal-close-btn" title="ปิดกล้อง">
+            <i data-lucide="x" style="width: 18px; height: 18px;"></i>
+          </button>
+        </div>
+      </div>
+      <div class="modal-body" style="padding: 1.25rem 1.5rem !important;">
+        <div class="camera-viewfinder-box" id="cameraViewfinder">
+          <video id="cameraVideo" playsinline autoplay muted></video>
+          <div class="camera-scan-overlay">
+            <div class="camera-target-reticle">
+              <div class="camera-laser-line"></div>
+            </div>
+          </div>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
+          <span style="font-size: 0.8rem; color: var(--apple-text-secondary);" id="cameraStatusText">กำลังเริ่มต้นกล้อง...</span>
+          <button type="button" id="btnSwitchCamera" class="apple-btn apple-btn-secondary" style="font-size: 0.78rem; padding: 0.35rem 0.75rem;">
+            <i data-lucide="refresh-cw" style="width: 13px; height: 13px;"></i>
+            <span>สลับกล้อง</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast Notification Container -->
   <div id="toastContainer" class="apple-toast-container"></div>
 
-  <!-- Scripts: Local Icons -> Particles -> App Logic -->
+  <!-- Scripts: Local Icons -> Barcode Engine -> Particles -> App Logic -->
   <script src="js/icons.js"></script>
+  <script src="js/barcode.js"></script>
   <script src="js/particles.js"></script>
   <script src="js/app.js"></script>
 </body>
